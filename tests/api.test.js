@@ -238,8 +238,10 @@ test("launch request returns a valid greeting without external API keys", async 
   assert.equal(state.statusCode, 200);
   assert.equal(state.payload.version, "1.0");
   assert.match(state.payload.response.text, /Привет/);
+  assert.doesNotMatch(state.payload.response.text, /найду свежую информацию/);
   assert.equal(state.payload.response.end_session, false);
   assert.equal(state.payload.response.buttons.length, 3);
+  assert.equal(state.payload.response.buttons[0].title, "Расскажи интересный факт");
 });
 
 test("help and stop commands work without calling external APIs", async t => {
@@ -252,7 +254,7 @@ test("help and stop commands work without calling external APIs", async t => {
     body: { request: { command: "Что ты умеешь?" }, state: { session: { history: [] } } }
   });
   assert.equal(help.statusCode, 200);
-  assert.match(help.payload.response.text, /погоде/);
+  assert.match(help.payload.response.text, /не ищу свежие данные/);
   assert.equal(help.payload.response.buttons.length, 3);
 
   const stop = await callHandler({
@@ -262,6 +264,18 @@ test("help and stop commands work without calling external APIs", async t => {
   assert.equal(stop.statusCode, 200);
   assert.equal(stop.payload.response.end_session, true);
   assert.match(stop.payload.response.text, /Пока/);
+});
+
+test("greeting and help mention web search only when Serper is configured", async t => {
+  cleanup(t);
+  process.env.SERPER_API_KEY = "test-search-key";
+
+  const greeting = await callHandler({ method: "POST", body: { request: { command: "" } } });
+  assert.match(greeting.payload.response.text, /найду свежую информацию/);
+  assert.equal(greeting.payload.response.buttons[0].title, "Какая погода?");
+
+  const help = await callHandler({ method: "POST", body: { request: { command: "Что ты умеешь?" } } });
+  assert.match(help.payload.response.text, /могу искать актуальные данные/);
 });
 
 test("normal question calls Gemini, filters thoughts and stores compact history", async t => {
