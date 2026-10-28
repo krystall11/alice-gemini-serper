@@ -10,12 +10,12 @@ const MAX_HISTORY_MESSAGE_CHARS = 300;
 const MAX_HISTORY_STATE_BYTES = 950;
 const MAX_SEARCH_CONTEXT_CHARS = 2600;
 
-// Яндекс ждёт ответ около 4,5 секунды. Держим общий бюджет меньше этого лимита.
-const TOTAL_RESPONSE_BUDGET_MS = 3600;
-const SEARCH_TIMEOUT_MS = 700;
-const GEMINI_TIMEOUT_MS = 2600;
-const GEMINI_RESERVE_MS = 2700;
-const RESPONSE_SAFETY_MS = 450;
+// Яндекс ждёт ответ около 4,5 секунды. Оставляем запас на сеть и формирование ответа.
+const TOTAL_RESPONSE_BUDGET_MS = 4100;
+const SEARCH_TIMEOUT_MS = 550;
+const GEMINI_TIMEOUT_MS = 3500;
+const GEMINI_RESERVE_MS = 3600;
+const RESPONSE_SAFETY_MS = 300;
 
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000;
 const SEARCH_CACHE_MAX_ENTRIES = 100;
