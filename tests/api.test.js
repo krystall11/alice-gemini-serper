@@ -322,9 +322,10 @@ test("normal question calls Gemini, filters thoughts and stores compact history"
   );
 
   assert.equal(geminiBody.contents.at(-1).parts[0].text, "Привет, как дела?");
-  assert.equal(geminiBody.generationConfig.maxOutputTokens, 300);
+  assert.equal(geminiBody.generationConfig.maxOutputTokens, 256);
+  assert.deepEqual(geminiBody.generationConfig.thinkingConfig, { thinkingLevel: "minimal" });
   assert.match(geminiBody.systemInstruction.parts[0].text, /голосовой помощник/);
-  assert.match(geminiBody.systemInstruction.parts[0].text, /недоверенные данные/);
+  assert.doesNotMatch(geminiBody.systemInstruction.parts[0].text, /недоверенные данные/);
 });
 
 test("Gemini always receives alternating roles even with a dangling user message", async t => {
@@ -409,6 +410,7 @@ test("search intent uses Serper, passes context to Gemini and caches search resu
   assert.equal(serperBody.q, "погоду в Москве");
   assert.match(geminiBody.contents.at(-1).parts[0].text, /<search_results>/);
   assert.match(geminiBody.contents.at(-1).parts[0].text, /плюс десять градусов/);
+  assert.match(geminiBody.systemInstruction.parts[0].text, /недоверенные данные/);
 
   const secondRequest = {
     ...request,
